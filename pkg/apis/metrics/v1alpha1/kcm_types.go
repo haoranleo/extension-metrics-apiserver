@@ -1,4 +1,3 @@
-
 /*
 Copyright 2024.
 
@@ -21,7 +20,7 @@ import (
 	"context"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
- 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	"sigs.k8s.io/apiserver-runtime/pkg/builder/resource"
@@ -33,6 +32,8 @@ import (
 
 // KCM
 // +k8s:openapi-gen=true
+// +resource:path=kcms
+// +subresource:request=KCMData,path=data,rest=KCMDataREST
 type KCM struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -44,7 +45,7 @@ type KCM struct {
 // KCMList
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type KCMList struct {
-	metav1.TypeMeta   `json:",inline"`
+	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	Items []KCM `json:"items"`
@@ -95,6 +96,7 @@ var _ resource.ObjectList = &KCMList{}
 func (in *KCMList) GetListMeta() *metav1.ListMeta {
 	return &in.ListMeta
 }
+
 // KCMStatus defines the observed state of KCM
 type KCMStatus struct {
 }
@@ -115,4 +117,13 @@ var _ resource.StatusSubResource = &KCMStatus{}
 
 func (in KCMStatus) CopyTo(parent resource.ObjectWithStatusSubResource) {
 	parent.(*KCM).Status = in
+}
+
+var _ resource.ObjectWithArbitrarySubResource = &KCM{}
+
+func (in *KCM) GetArbitrarySubResources() []resource.ArbitrarySubResource {
+	return []resource.ArbitrarySubResource{
+		// +kubebuilder:scaffold:subresource
+		&KCMData{},
+	}
 }
