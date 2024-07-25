@@ -44,6 +44,8 @@ func (r *KCMDataREST) New() runtime.Object {
 	return &MetricsData{}
 }
 
+func (r *KCMDataREST) Destroy() {}
+
 type MetricsData struct {
 	data string
 }

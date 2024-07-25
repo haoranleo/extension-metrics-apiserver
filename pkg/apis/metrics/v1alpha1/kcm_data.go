@@ -50,6 +50,8 @@ func (c *KCMData) New() runtime.Object {
 	return &KCMData{}
 }
 
+func (c *KCMData) Destroy() {}
+
 func (c *KCMData) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	// EDIT IT
 	parentStorage, ok := contextutil.GetParentStorage(ctx)

@@ -1,4 +1,3 @@
-
 /*
 Copyright 2024.
 
@@ -25,4 +24,3 @@ limitations under the License.
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=metrics.eks.amazonaws.com
 package v1alpha1 // import "github.com/extension-metrics-apiserver/pkg/apis/metrics/v1alpha1"
-
