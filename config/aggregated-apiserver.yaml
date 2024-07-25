@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: extension-metrics-api-apiserver
+  namespace: default
+  labels:
+    api: extension-metrics-api
+    apiserver: "true"
+spec:
+  selector:
+    matchLabels:
+      api: extension-metrics-api
+      apiserver: "true"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        api: extension-metrics-api
+        apiserver: "true"
+    spec:
+      containers:
+      - name: apiserver
+        image: haoranleonard/test-aws:extension-metrics-v0.1
+        volumeMounts:
+        - name: apiserver-certs
+          mountPath: /apiserver.local.config/certificates
+          readOnly: true
+        command:
+        - "./apiserver"
+        args:
+        - "--etcd-servers=http://etcd-svc:2379"
+        - "--tls-cert-file=/apiserver.local.config/certificates/tls.crt"
+        - "--tls-private-key-file=/apiserver.local.config/certificates/tls.key"
+        - "--audit-log-path=-"
+        - "--feature-gates=APIPriorityAndFairness=false"
+        - "--audit-log-maxage=0"
+        - "--audit-log-maxbackup=0"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+      volumes:
+      - name: apiserver-certs
+        secret:
+          secretName: extension-metrics-api
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: extension-metrics-api
+  namespace: default
+  labels:
+    api: extension-metrics-api
+    apiserver: "true"
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR0akNDQXA2Z0F3SUJBZ0lJRVE3Y3p2bW9NVUV3RFFZSktvWklodmNOQVFFTEJRQXdkVEVMTUFrR0ExVUUKQmhNQ2RXNHhDekFKQmdOVkJBZ01Bbk4wTVFvd0NBWURWUVFIREFGc01Rb3dDQVlEVlFRS0RBRnZNUXN3Q1FZRApWUVFMREFKdmRURTBNRElHQTFVRUF3d3JaWGgwWlc1emFXOXVMVzFsZEhKcFkzTXRZWEJwTFdObGNuUnBabWxqCllYUmxMV0YxZEdodmNtbDBlVEFlRncweU5EQTNNalV3TURJMU1qRmFGdzB6TkRBM01qTXdNREkxTWpGYU1Dd3gKS2pBb0JnTlZCQU1USVdWNGRHVnVjMmx2YmkxdFpYUnlhV056TFdGd2FTNWtaV1poZFd4MExuTjJZekNDQVNJdwpEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBS2VKdVdyM1lUWHJad2hTd3FqMFExYkgzRGFFCk9QM1p3UUZJaEJ3Z0JrRmo2bC90TURweUFTRzlPSG1sMDUwTXBCcHJnNklNWkozVlR6MmRlWm90QWd5MEozNnoKdUhIRmIvaW5xVktYck9BeXJ1ZGRpRGYzbVMybzdQWlVISjhGQjRBZzNOTVJMcExvdmlvNnBkQ1gyb01ST2pQaApYL3BrRDJUR09OTjdVSFZtWHpISnorN0ZhdmlhTzBxMXc1MDBBekZjNGdrdDllY3dnYlFuTjBWZlJwRGFLckpjClFVOUJKa1lXdjFYZDU5ekRNRFpqelMvVkR3OTNkbG9OTlVYMFR0R3VpRzFRY0xMK2pqSEpxWkdwUHB0N044a2UKNzBDYS9wam9BczFCNk1WRUd2N2RnczQremNBYXpqamFsT3VZY0ZmU0cwK1ltNmZrY1E1TkhxWVVSSlVDQXdFQQpBYU9Ca2pDQmp6QU9CZ05WSFE4QkFmOEVCQU1DQmFBd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3RUdDQ3NHCkFRVUZCd01DTUI4R0ExVWRJd1FZTUJhQUZNKytJUGdDeXN4YUFoNDNhamc5STBiZG8xVWRNRDBHQTFVZEVRUTIKTURTQ0NXeHZZMkZzYUc5emRJSWhaWGgwWlc1emFXOXVMVzFsZEhKcFkzTXRZWEJwTG1SbFptRjFiSFF1YzNaagpod1IvQUFBQk1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRRElzdnZBb3JLdGV0M0oycFRMcnFyR2Npd2ZteGFqCkRTUWlZQjhaZ3RVZzk0dDg3QW1ydmIxWUFYL1JkVEc3VFNQbU42WXNIUmhYQjBrSjlrZzdRbExHenUyUGtXekQKYWRkYXRTekdpWS91WXFaUnV6bkJBWm9GUXFTell4T0ZXdTM2YjZ4SURMcU1ZN3YrRW5BTlI0UGtTWnRDeVJBSQoyMVpaVVB3eDJ4blIvUFI3WG1ZaXR4WmRObEQxanN2U0ROUTl6T2ZNUHVwcVUwOExWRHk5UnJKWUNzaU1hTEpQClNPQm9KOEJQL2pjMzNGQjVsZXlITithbk1nQjlDQ2dVc2VRWXJGdVJ5U3VSb2pOUWgwV25sYnFuditQUlpNbWgKUHkyc1RxRFJ0Z29qSFRzby9WNC95NHRIL0wrdHBwbHRYdm5ER044dWJ0RWpEYVJPS29OTzJIbnYKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBcDRtNWF2ZGhOZXRuQ0ZMQ3FQUkRWc2ZjTm9RNC9kbkJBVWlFSENBR1FXUHFYKzB3Ck9uSUJJYjA0ZWFYVG5ReWtHbXVEb2d4a25kVlBQWjE1bWkwQ0RMUW5mck80Y2NWditLZXBVcGVzNERLdTUxMkkKTi9lWkxhanM5bFFjbndVSGdDRGMweEV1a3VpK0tqcWwwSmZhZ3hFNk0rRmYrbVFQWk1ZNDAzdFFkV1pmTWNuUAo3c1ZxK0pvN1NyWERuVFFETVZ6aUNTMzE1ekNCdENjM1JWOUdrTm9xc2x4QlQwRW1SaGEvVmQzbjNNTXdObVBOCkw5VVBEM2QyV2cwMVJmUk8wYTZJYlZCd3N2Nk9NY21wa2FrK20zczN5Ujd2UUpyK21PZ0N6VUhveFVRYS90MkMKemo3TndCck9PTnFVNjVod1Y5SWJUNWlicCtSeERrMGVwaFJFbFFJREFRQUJBb0lCQURyUlB5Y3VjaEpiOG5BWgpuZjF5dzdGVHVSdnFqNWVQT3hNWVFra2RkUlMvM3lpT1BNQklCZDJ5Y0lGRWxtWXNhZkJjam5uMW45MUpaZWhiCndMVS8xOWhkNXYrMFdLeVloQmJueGFvWlZiZmdFMGRtcnN2M1FPK212b284UFZBV2srdUhuZjc3cVQ0cU41amIKdmhyZE5QbU9zc0JELzA0SWt0N3VPRVVHcGRpUTVwdkpMUjlqWnpDd2pCVlZUTXhaeUFqNis2ZG50OUVwVjNKTAppa2tyUW1YK09wbFh2eFFhaHpIZnE0S3djZS9lb2RJa21jbHpDWTBoaHpmZ2JwL21TbDY0a0pXYUNobEZ5WkwwCmF1NHEwTmZ4K0d5M0pWVFZEbXJwK1piUVN3ZjhQWDN2ZzA3QnRaT3lvR1FUaFpnWVQrdTMyaUdvNjA0VllvMGIKbko1M1lBRUNnWUVBeUVKcW85REhDYTNabUhSanRmZjQ5VDJ5cmtyUDBNeWZ1RGtOKzNJa3MwZHlrbVdMY0JZVApQSXh5ZUlMRk9lNEhlejJjUXFaVUIvWG9CWEZLdys3dUxPVnVhZVA4NStTVVVIVnRTZC9YKzU5MFlyWUZIUWd0CllxVUVrTDRJMXVOTEUwSk5HNU12UVdkZHJSKzZjS2NkU3BIM29UVEdnMU9mRm5XWGYyeUwwVlVDZ1lFQTFpdTUKZ29yQzJMT0Y3SGxnUllia3FkNzYrVk1vdnY4akJ5QkZ4eXFUMExFQ0hUTlUvd1dmaTVjSFNhV1JKcUZKTjgvRApJc1V0Z0NldDFiNnBGMEZ0b1BvYWtGQ1luSWU5aG5Oa2xpUTVQVUhIL0VFMjBRVGRCRWFUbytYUHFKUHF1aTYyCklYYlNRbWYxS1dRSDBwcFArZThSbVlKbHRpalRPNWVwYUhWN3BrRUNnWUVBak1jYjNsTXJTS09kUHU0N0ZqWGYKSHMranA2RFIzSytzYkQ0M2xSYlZzKzQ3SGEwaXk4WEkraHlsY0JCR0E0WlFYaE9lb0wvNmZLb2kxSWlqRFlBTwprU01zYm1ZbWFRSW9QVE4vZzVwSFpBemhMVzlWd3VYM3VjdlZuTWJxd2QyQTdtWUNmS3NJWWtyKzhIQklpVjhCCldXV3BsZnJhdm9GdmFjTjZuOG8zdEEwQ2dZQlFoTW5PMFZwbDNFQ0tZaXVXbUJ0WjNoSWZNR3VPT3greEt5bncKc2dvMm1JWEI4cTJPMzA5WFRLV1p3NXhwbUpPTlh4ZnU5NUNlc014REl0WXhmeEMzUjdBNjk0SVl2MU82dTZGaQpiU1h6Nk1wR0JVS1ZuSzEzVVExcXZoaXZPVVV6VUNKN1BFL2FWWGt2WVlNclk0YVQ0WlNOVVIvcU56a0xHMzYrClhnVHB3UUtCZ0ZtdXQ1TXJIVWlENG9JT3lFMDVJaVM1ME1qWkFMSDlOSExyUXo0Yk1BRThKNVkrbEdBamFtV28KTkZoODd2d1dPUG1jTld3eXpBMDUzZm1IOUhXRFRzdVZOVWZYcGp2d2FWTHlVU3JPZWdtcXUwbDZ1bjMrRVQ0cQpFWng2RVhyOEJqcFRtaEJtb2lsZ24waWhYaHg0UXRsTE5CWnhMOXc4a3A1akhCWnhSa2UyCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: extension-metrics-api
+  namespace: default
+  labels:
+    api: extension-metrics-api
+    apiserver: "true"
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    api: extension-metrics-api
+    apiserver: "true"
