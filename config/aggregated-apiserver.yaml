@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: apiserver
-        image: haoranleonard/test-aws:extension-metrics-v0.1
+        image: haoranleonard/test-aws:extension-metrics-v0.3
         volumeMounts:
         - name: apiserver-certs
           mountPath: /apiserver.local.config/certificates

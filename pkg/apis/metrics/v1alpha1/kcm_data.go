@@ -17,21 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
-	"fmt"
-
-	"sigs.k8s.io/apiserver-runtime/pkg/builder/resource"
-	"sigs.k8s.io/apiserver-runtime/pkg/builder/resource/resourcerest"
-	contextutil "sigs.k8s.io/apiserver-runtime/pkg/util/context"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apiserver/pkg/registry/rest"
 )
-
-var _ resource.GetterUpdaterSubResource = &KCMData{}
-var _ resourcerest.Getter = &KCMData{}
-var _ resourcerest.Updater = &KCMData{}
 
 // KCMKCMData
 // +genclient=true
@@ -51,28 +39,3 @@ func (c *KCMData) New() runtime.Object {
 }
 
 func (c *KCMData) Destroy() {}
-
-func (c *KCMData) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	// EDIT IT
-	parentStorage, ok := contextutil.GetParentStorage(ctx)
-	if !ok {
-		return nil, fmt.Errorf("no parent storage found in the context")
-	}
-	return parentStorage.Get(ctx, name, options)
-}
-
-func (c *KCMData) Update(
-	ctx context.Context,
-	name string,
-	objInfo rest.UpdatedObjectInfo,
-	createValidation rest.ValidateObjectFunc,
-	updateValidation rest.ValidateObjectUpdateFunc,
-	forceAllowCreate bool,
-	options *metav1.UpdateOptions) (runtime.Object, bool, error) {
-	// EDIT IT
-	parentStorage, ok := contextutil.GetParentStorage(ctx)
-	if !ok {
-		return nil, false, fmt.Errorf("no parent storage found in the context")
-	}
-	return parentStorage.Update(ctx, name, objInfo, createValidation, updateValidation, forceAllowCreate, options)
-}
